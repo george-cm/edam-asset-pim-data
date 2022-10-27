@@ -1,0 +1,6 @@
+.python-version
+.venv
+.vscode
+secrets.toml
+*.xlsx
+*.csv
