@@ -1,17 +1,19 @@
-"""This script aims to get information about eDAM digital assets' PIM item and product assignments"""
+"""This script aims to get information about eDAM digital assets' PIM item and product assignments.
+The olny dependency is Python >= 3.10 and the Python standard library"""
 
 import csv
+import json
 import sys
 from pathlib import Path
 from typing import Optional
-
-import requests
+from urllib.error import HTTPError
+from urllib.request import urlopen
 
 
 def main():
     """Main entry point of the program"""
 
-    in_file = Path("PDF_documents_received_as_images-from_Excel.csv")
+    in_file = Path("PDF_documents_received_as_images_Sheet1.csv")
     url_column_name = "p_internalurl"
 
     if not in_file.exists():
@@ -92,10 +94,14 @@ def get_pim_product_and_item_assigments(asset_data: Optional[dict]) -> dict[str,
 def download_asset_json(url: str) -> Optional[dict]:
     """Gets a url of an AEM DAM digital asset and returns a dict of its json representation."""
 
-    res = requests.get(url.strip() + ".infinity.json", timeout=300)
-    if res.ok:
-        return res.json()
-    return None
+    try:
+        with urlopen(url.strip() + ".2.json", timeout=300) as res:
+            if res.status < 400:
+                return json.loads(res.read().decode("utf-8"))
+            return None
+    except HTTPError as http_error:
+        print(f"Failed to get {http_error.url}. Status Code: {http_error.status} - {http_error.reason}")
+        return None
 
 
 if __name__ == "__main__":
