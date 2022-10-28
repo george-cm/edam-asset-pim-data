@@ -92,7 +92,7 @@ def get_pim_product_and_item_assigments(asset_data: Optional[dict]) -> dict[str,
 def download_asset_json(url: str) -> Optional[dict]:
     """Gets a url of an AEM DAM digital asset and returns a dict of its json representation."""
 
-    res = requests.get(url.strip() + ".infinity.json", timeout=300)
+    res = requests.get(url.strip() + ".3.json", timeout=300)
     if res.ok:
         return res.json()
     return None
