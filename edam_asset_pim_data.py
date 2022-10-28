@@ -27,7 +27,7 @@ def main():
 
     out_file = in_file.with_name(in_file.stem + "_pim-assignments.csv")
 
-    with in_file.open("r", encoding=encoding) as inf, out_file.open("w", encoding="utf-8", newline="") as outf:
+    with in_file.open("r", encoding=encoding) as inf, out_file.open("w", encoding=encoding, newline="") as outf:
         reader = csv.DictReader(inf, dialect="excel")
         header = ["PIM Product no.", "PIM Item no."] + reader.fieldnames  # type: ignore
         writer = csv.DictWriter(outf, dialect="excel", fieldnames=header)  # type: ignore
@@ -59,7 +59,11 @@ def main():
                     row = {"PIM Product no.": None, "PIM Item no.": item, **line}
                     writer.writerow(row)
             else:
-                row = {"PIM Product no.": None, "PIM Item no.": None, **line}
+                row = {
+                    "PIM Product no.": "NOT ASSIGNED TO ANY PRODUCTS",
+                    "PIM Item no.": "NOT ASSIGNED TO ANY ITEMS",
+                    **line,
+                }
 
     if not found_url_column:
         out_file.unlink(missing_ok=True)
@@ -88,11 +92,10 @@ def get_pim_product_and_item_assigments(asset_data: Optional[dict]) -> dict[str,
 def download_asset_json(url: str) -> Optional[dict]:
     """Gets a url of an AEM DAM digital asset and returns a dict of its json representation."""
 
-    res = requests.get(url.strip() + ".infinity.json")
+    res = requests.get(url.strip() + ".infinity.json", timeout=300)
     if res.ok:
         return res.json()
-    else:
-        return None
+    return None
 
 
 if __name__ == "__main__":
